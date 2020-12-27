@@ -1,0 +1,27 @@
+pipeline {
+    
+    agent any
+
+	stages {
+		
+		stage('checkout'){
+		  steps{
+			git 'https://github.com/jleetutorial/maven-project.git'
+			}
+		}
+		stage('Build') {
+            steps {
+                copyArtifacts filter: '**/*.war', fingerprintArtifacts: true, projectName: 'myproject', selector: lastSuccessful()
+		    }
+
+	        post {
+		        success {
+		            deploy adapters: [tomcat9(credentialsId: '9c330d42-1995-450b-8lf4-ade1513caf6df', path: '', url: 'http://127.0.0.1:8000')], contextPath: null, war: '**/*.war'
+		        }
+
+	        }
+
+		}
+
+	}
+}
